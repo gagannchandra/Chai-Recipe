@@ -1,37 +1,82 @@
-<!DOCTYPE html>
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <title>Special Chai ☕💛</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Yashi's Special Chai for Gagan</title>
   <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Lora:ital@0;1&family=Great+Vibes&family=Parisienne&display=swap" rel="stylesheet">
 </head>
 <body>
-  <h1>☕ Yashi's Special Chai for Gagan 💛</h1>
-  <p>Chai recipe – with a warm, loving touch</p>
+  <div class="parallax-bg"></div>
+  <div class="content">
+    <h1>☕ Yashi's Special Chai for Gagan 💛</h1>
+    <p>"One day my son asked, 'Dad, how was I born?' And then I remembered this recipe.</p>
 
-  <h2>Ingredients</h2>
-  <ul>
-    <li>Water – 1½ cups</li>
-    <li>Tea leaves – ½ tsp</li>
-    <li>Ginger – a little bit</li>
-    <li>Cardamom – 1 pod</li>
-    <li>Sugar – 2 tsp</li>
-    <li>Milk – 1 cup</li>
-  </ul>
+    <h2>Ingredients</h2>
+    <ul>
+      <li>Water – 1½ cups</li>
+      <li>Tea leaves – ½ tsp</li>
+      <li>Ginger – a little bit</li>
+      <li>Cardamom – 1 pod</li>
+      <li>Sugar – 2 tsp</li>
+      <li>Milk – 1 cup</li>
+    </ul>
 
-  <h2>Instructions</h2>
-  <ol>
-    <li>Gagan quietly enters the kitchen, his eyes searching for Yashi.</li>
-    <li>He tries to turn on the gas... but it refuses to light — just like his heart until he met her.</li>
-    <li>Yashi walks in, gracefully draped in a saree, looking like a dream.</li>
-    <li>Gagan wraps his arms around her from behind, holding her gently by the waist.</li>
-    <li>And then... the chai isn't the only thing that starts to heat up. 💛</li>
-  </ol>
+    <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=60" alt="Heart-shaped chai cup">
 
-  <button onclick="startChaiLoveStory()">Start the Chai Love Story 💖</button>
+    <h2>Instructions</h2>
+    <ol>
+      <li>Gagan quietly enters the kitchen, his eyes searching for Yashi.</li>
+      <li>He tries to turn on the gas... but it refuses to light — just like his heart until he met her.</li>
+      <li>Yashi walks in, gracefully draped in a saree, looking like a dream.</li>
+      <li>Gagan wraps his arms around her from behind, holding her gently by the waist.</li>
+      <li>And then... the chai isn't the only thing that starts to heat up. 💛</li>
+    </ol>
 
-  <img src="love.PNG" alt="Chai Love Moment">
+    <button onclick="startChaiLoveStory()">Start the Chai Love Story 💖</button>
+  </div>
 
+  <audio id="romantic-audio" src="https://www.kozco.com/tech/piano2-CoolEdit.mp3" loop></audio>
   <script src="script.js"></script>
 </body>
 </html>
